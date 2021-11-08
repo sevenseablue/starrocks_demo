@@ -29,16 +29,16 @@ import scala.collection.mutable.ListBuffer
 object SparkStreaming2StarRocks {
   LoggerUtil.setSparkLogLevels()
   // parameters
-  val topics =  "spark_demo1_src"
+  val topics =  "canaltest"
   val brokers =  "127.0.0.1:9092"
-  val starRocksName =  "starrocks_demo"
-  val tblName =  "demo1_spark_tb0"
-  val userName =  "root"
-  val password =  ""
-  val srFe = "master1"   // fe hostname
-  val port =  8030          // fe http port
-  val filterRatio =  0.2
-  val columns = "site,date,hour,minute,uv,uv=to_bitmap(uv)"
+  val starRocksName =  "spark_test"
+  val tblName =  "sparkstreaming"
+  val userName =  "test"
+  val password =  "123456"
+  val srFe = "localhost"   // fe hostname
+  val port =  18030          // fe http port
+  val filterRatio =  0.5
+  val columns = "`database`,`es`,`id`,`table`"
   val master = "local"
   val consumerGroup =  "demo1_kgid1"
   val appName = "app_spark_demo1"
@@ -90,14 +90,11 @@ object SparkStreaming2StarRocks {
         while(itr.hasNext) {
           val jsonRawStr:String = itr.next.value()
           val jsObj = JSON.parseObject(jsonRawStr.trim.toLowerCase())
-          val uid = jsObj.getInteger("uid")
-          val site = jsObj.getString("site")
-          val time = jsObj.getLong("time")
-          val dt = new DateTime(time * 1000)
-          val date = dt.toString( s"yyyy${Consts.dateSep}MM${Consts.dateSep}dd")
-          val hour = dt.getHourOfDay
-          val minute = dt.getMinuteOfHour
-          list append Array(site, date, hour, minute,  uid).mkString(Consts.starrocksSep)
+          val `database` = jsObj.getString("database")
+          val `es` = jsObj.getString("es")
+          val `id` = jsObj.getString("id")
+          val `table` = jsObj.getString("table")
+          list append Array(`database`, `es`, `id`, `table`).mkString(Consts.starrocksSep)
         }
         list.iterator
       })
